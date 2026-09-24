@@ -1,0 +1,29 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@protected": true,
+    "CedulaUruguayaCredential": {
+      "@id": "https://schema.org/CedulaUruguayaCredential",
+      "@context": {
+        "@version": 1.1,
+        "@protected": true,
+        "id": "@id",
+        "type": "@type",
+        "dnic": "https://emmanuelacostaiugo.github.io/DID/hackathon/vocab#",
+        "ci": "dnic:ci",
+        "given_name": "dnic:given_name",
+        "family_name_1": "dnic:family_name_1",
+        "family_name_2": "dnic:family_name_2",
+        "birth_date": "dnic:birth_date",
+        "nationality": "dnic:nationality",
+        "place_of_birth": "dnic:place_of_birth",
+        "document_type": "dnic:document_type",
+        "document_number": "dnic:document_number",
+        "issue_date": "dnic:issue_date",
+        "expiry_date": "dnic:expiry_date",
+        "issuing_authority": "dnic:issuing_authority",
+        "face": "dnic:face"
+      }
+    }
+  }
+}

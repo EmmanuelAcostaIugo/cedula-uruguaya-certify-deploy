@@ -1,0 +1,76 @@
+services:
+  database:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./certify_init.sql:/docker-entrypoint-initdb.d/certify_init.sql:ro
+    networks:
+      - cedula-network
+
+  certify:
+    image: injistack/inji-certify-with-plugins:0.14.0
+    user: root
+    restart: unless-stopped
+    environment:
+      - container_user=mosip
+      - active_profile_env=default, cedula-uruguaya
+      - SPRING_CONFIG_NAME=certify
+      - SPRING_CONFIG_LOCATION=/home/mosip/config/
+      - enable_certify_artifactory=false
+      - download_hsm_client=false
+      - mosip_certify_domain_url=https://${DUCKDNS_DOMAIN}
+    volumes:
+      - ./config/certify-default.properties:/home/mosip/config/certify-default.properties:ro
+      - ./config/certify-cedula-uruguaya.properties:/home/mosip/config/certify-cedula-uruguaya.properties:ro
+      - certify-pkcs12:/home/mosip/CERTIFY_PKCS12
+    networks:
+      - cedula-network
+    depends_on:
+      - database
+
+  certify-nginx:
+    image: nginx:stable
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DUCKDNS_DOMAIN=${DUCKDNS_DOMAIN}
+    volumes:
+      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - certbot-webroot:/var/www/certbot:ro
+      - letsencrypt:/etc/letsencrypt:ro
+    networks:
+      - cedula-network
+    depends_on:
+      - certify
+
+  # One-off cert issuance: `docker compose run --rm certbot certonly ...` (see setup.sh).
+  # Once a cert exists, this same service is started long-running to renew it twice a day.
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot-webroot:/var/www/certbot
+      - letsencrypt:/etc/letsencrypt
+    entrypoint: >-
+      /bin/sh -c "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done"
+    networks:
+      - cedula-network
+
+networks:
+  cedula-network:
+    name: cedula-network
+
+volumes:
+  postgres-data:
+    name: cedula-postgres-data
+  certify-pkcs12:
+    name: cedula-certify-pkcs12
+  letsencrypt:
+    name: cedula-letsencrypt
+  certbot-webroot:
+    name: cedula-certbot-webroot
