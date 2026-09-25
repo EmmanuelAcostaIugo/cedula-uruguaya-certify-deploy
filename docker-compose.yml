@@ -61,7 +61,7 @@ services:
       - ./config/mimoto-bootstrap.properties:/home/mosip/mimoto-bootstrap.properties:ro
       - ./config/mimoto-issuers-config.json:/home/mosip/mimoto-issuers-config.json:ro
       - ./config/mimoto-trusted-verifiers.json:/home/mosip/mimoto-trusted-verifiers.json:ro
-      - ./certs/oidckeystore.p12:/home/mosip/certs/oidckeystore.p12:ro
+      - ./certs/oidckeystore.p12:/home/mosip/certs/oidckeystore.p12
     networks:
       - cedula-network
     depends_on:
