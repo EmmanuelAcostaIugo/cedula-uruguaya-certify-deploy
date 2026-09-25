@@ -11,12 +11,17 @@ set -a
 source .env
 set +a
 
-for var in POSTGRES_PASSWORD DUCKDNS_DOMAIN DUCKDNS_TOKEN LETSENCRYPT_EMAIL; do
+for var in POSTGRES_PASSWORD DUCKDNS_DOMAIN DUCKDNS_TOKEN LETSENCRYPT_EMAIL OIDC_P12_PASSWORD; do
   if [ -z "${!var:-}" ]; then
     echo "Missing required .env value: $var" >&2
     exit 1
   fi
 done
+
+if [ ! -f certs/oidckeystore.p12 ]; then
+  echo "Missing certs/oidckeystore.p12 - copy it from the local dev environment first (see certs/README.md)." >&2
+  exit 1
+fi
 
 echo "==> Installing Docker"
 if ! command -v docker >/dev/null; then
@@ -37,8 +42,8 @@ docker run --rm --entrypoint sh -v cedula-letsencrypt:/etc/letsencrypt alpine/op
      -out /etc/letsencrypt/live/$DUCKDNS_DOMAIN/fullchain.pem \
      -subj /CN=$DUCKDNS_DOMAIN"
 
-echo "==> Starting database, certify and nginx (with the temporary cert)"
-docker compose up -d database certify certify-nginx
+echo "==> Starting database, certify, mimoto-service and nginx (with the temporary cert)"
+docker compose up -d database certify mimoto-service certify-nginx
 
 echo "==> Waiting for nginx to answer on port 80"
 for i in $(seq 1 30); do
