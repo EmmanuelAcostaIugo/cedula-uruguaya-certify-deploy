@@ -30,7 +30,7 @@ curl -fsS "https://www.duckdns.org/update?domains=$(echo "$DUCKDNS_DOMAIN" | cut
 
 echo "==> Creating a temporary self-signed cert so nginx can boot before the real one exists"
 docker volume create cedula-letsencrypt >/dev/null
-docker run --rm -v cedula-letsencrypt:/etc/letsencrypt alpine/openssl sh -c \
+docker run --rm --entrypoint sh -v cedula-letsencrypt:/etc/letsencrypt alpine/openssl -c \
   "mkdir -p /etc/letsencrypt/live/$DUCKDNS_DOMAIN && \
    openssl req -x509 -nodes -newkey rsa:2048 -days 1 \
      -keyout /etc/letsencrypt/live/$DUCKDNS_DOMAIN/privkey.pem \
