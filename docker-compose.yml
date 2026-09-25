@@ -23,6 +23,7 @@ services:
       - enable_certify_artifactory=false
       - download_hsm_client=false
       - mosip_certify_domain_url=https://${DUCKDNS_DOMAIN}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - ./config/certify-default.properties:/home/mosip/config/certify-default.properties:ro
       - ./config/certify-cedula-uruguaya.properties:/home/mosip/config/certify-cedula-uruguaya.properties:ro
