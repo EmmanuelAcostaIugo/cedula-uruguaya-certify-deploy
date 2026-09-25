@@ -61,3 +61,28 @@ docker compose restart certify-nginx
 ## Generar una oferta Pre-Authorized Code (QR) para un ciudadano
 
 Ver `docs/generar-oferta.md` (mismo flujo que se usó en desarrollo local).
+
+## Smoke test end-to-end (`test-flow.js`)
+
+`node test-flow.js` (requiere Node.js) hace todo el flujo Pre-Authorized Code contra
+`https://certify-iugolabs.duckdns.org` en un solo proceso con conexión HTTP keep-alive: pide
+la oferta, la canjea por un token, genera un proof `did:jwk` real y emite la credencial. Es
+mucho más rápido que encadenar varios `curl` sueltos (cada proceso nuevo + handshake TLS
+aparte puede hacer que se venza el `c_nonce`, que solo dura 40 segundos) - usarlo así evita
+falsos negativos de "invalid_proof" por timing. Editar `preauth_body.json` para cambiar los
+datos de prueba, y la constante `BASE` en `test-flow.js` si cambia el dominio.
+
+## Notas de la primera puesta en producción (2026-09-25)
+
+- **t3.micro no alcanza**: con Certify + Postgres + nginx + certbot juntos, el JVM entra en
+  crash-loop por falta de RAM (914MB totales). Se subió a t3.small (2GB) - mínimo recomendado.
+- **Contraseña de Postgres desincronizada**: `certify-default.properties` traía hardcodeado
+  `spring.datasource.password=postgres`, pero el compose usa `${POSTGRES_PASSWORD}` para el
+  contenedor de Postgres. Si cambiás `POSTGRES_PASSWORD` en `.env`, la property ya lee
+  `${POSTGRES_PASSWORD:postgres}` (variable de entorno con fallback), y el compose ya pasa esa
+  misma variable al servicio `certify` - no hace falta tocar nada más.
+- **Reloj del cliente**: la validación del proof JWT usa clock skew cero
+  (`setMaxClockSkew(0)`). Si el reloj de la máquina desde la que se prueba está desincronizado
+  (ej. Windows con el servicio de hora parado), vas a ver `invalid_proof` sin pista alguna en
+  los logs del servidor. Verificar con `w32tm /query /status` (Windows) antes de sospechar del
+  servidor.

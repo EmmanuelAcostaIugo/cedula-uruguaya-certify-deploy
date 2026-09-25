@@ -1,0 +1,18 @@
+{
+  "credential_configuration_id": "CedulaUruguayaCredential",
+  "claims": {
+    "place_of_birth": "Montevideo, Uruguay",
+    "document_type": "National ID",
+    "family_name_2": "Martínez",
+    "document_number": "51234567",
+    "issuing_authority": "National Office of Civil Identification",
+    "given_name": "Sofía",
+    "expiry_date": "2033-05-14",
+    "birth_date": "1990-07-22",
+    "ci": "uy-ci-51234567",
+    "family_name_1": "García",
+    "nationality": "Uruguaya",
+    "issue_date": "2023-05-15"
+  },
+  "expires_in": 3600
+}
