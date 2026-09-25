@@ -49,15 +49,16 @@ services:
     depends_on:
       - certify
 
-  # One-off cert issuance: `docker compose run --rm certbot certonly ...` (see setup.sh).
-  # Once a cert exists, this same service is started long-running to renew it twice a day.
+  # One-off cert issuance uses `--entrypoint certbot` to override this (see setup.sh);
+  # `docker compose up -d certbot` (this default) runs the twice-a-day renewal loop instead.
   certbot:
     image: certbot/certbot
     volumes:
       - certbot-webroot:/var/www/certbot
       - letsencrypt:/etc/letsencrypt
-    entrypoint: >-
-      /bin/sh -c "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done"
     networks:
       - cedula-network
 

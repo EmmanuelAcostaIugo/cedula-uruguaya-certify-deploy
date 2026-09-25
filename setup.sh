@@ -46,7 +46,7 @@ for i in $(seq 1 30); do
 done
 
 echo "==> Requesting the real Let's Encrypt certificate"
-docker compose run --rm certbot certonly --webroot -w /var/www/certbot \
+docker compose run --rm --entrypoint certbot certbot certonly --webroot -w /var/www/certbot \
   -d "$DUCKDNS_DOMAIN" --email "$LETSENCRYPT_EMAIL" --agree-tos --non-interactive
 
 echo "==> Reloading nginx with the real certificate and starting the renewal loop"
