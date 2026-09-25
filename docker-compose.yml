@@ -79,6 +79,9 @@ services:
       - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
       - certbot-webroot:/var/www/certbot:ro
       - letsencrypt:/etc/letsencrypt:ro
+      - ./config/mimoto-issuers-config.json:/config/server/mimoto-issuers-config.json:ro
+      - ./config/mimoto-trusted-verifiers.json:/config/server/mimoto-trusted-verifiers.json:ro
+      - ./config/credential-template.html:/config/server/credential-template.html:ro
     networks:
       - cedula-network
     depends_on:

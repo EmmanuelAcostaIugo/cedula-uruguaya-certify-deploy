@@ -6,6 +6,21 @@ server {
         root /var/www/certbot;
     }
 
+    # mimoto's Spring Cloud "config server" pattern fetches its static config files
+    # (mimoto-issuers-config.json, etc.) via plain HTTP to this container's own hostname
+    # (config.server.file.storage.uri=http://certify-nginx/). Serve them here so that
+    # internal call doesn't hit the HTTPS redirect below (which would fail TLS hostname
+    # verification since the cert only covers ${DUCKDNS_DOMAIN}).
+    location = /mimoto-issuers-config.json {
+        root /config/server;
+    }
+    location = /mimoto-trusted-verifiers.json {
+        root /config/server;
+    }
+    location = /credential-template.html {
+        root /config/server;
+    }
+
     location / {
         return 301 https://$host$request_uri;
     }
