@@ -26,7 +26,7 @@ fi
 
 echo "==> Updating DuckDNS record to this instance's public IP"
 curl -fsS "https://www.duckdns.org/update?domains=$(echo "$DUCKDNS_DOMAIN" | cut -d. -f1)&token=$DUCKDNS_TOKEN&ip=" >/dev/null
-( crontab -l 2>/dev/null | grep -v duckdns.org ; echo "*/5 * * * * curl -fsS \"https://www.duckdns.org/update?domains=$(echo "$DUCKDNS_DOMAIN" | cut -d. -f1)&token=$DUCKDNS_TOKEN&ip=\" >/dev/null 2>&1" ) | crontab -
+( { crontab -l 2>/dev/null || true; } | grep -v duckdns.org || true; echo "*/5 * * * * curl -fsS \"https://www.duckdns.org/update?domains=$(echo "$DUCKDNS_DOMAIN" | cut -d. -f1)&token=$DUCKDNS_TOKEN&ip=\" >/dev/null 2>&1" ) | crontab -
 
 echo "==> Creating a temporary self-signed cert so nginx can boot before the real one exists"
 docker volume create cedula-letsencrypt >/dev/null
